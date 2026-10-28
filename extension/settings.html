@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Auto Confirm — домены</title><link rel="stylesheet" href="ui.css"></head>
+<body class="settings-page">
+  <main>
+    <header><img class="brand-logo" src="icons/logo.svg" width="42" height="42" alt=""><span class="eyebrow">AUTO CONFIRM</span><h1>Домены</h1><p>Приложение автоматически подтверждает системные окна confirm на выбранных сайтах. Когда приложение выключено, оно ничего не делает.</p></header>
+    <section class="card" aria-label="Управление доменами">
+      <form id="add-form">
+        <label for="domain">Добавить домен</label>
+        <div class="add-row"><input id="domain" name="domain" type="text" placeholder="example.com" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="hint status" required disabled><button id="add" class="primary" type="submit" disabled>Добавить</button></div>
+        <p id="hint" class="hint">Кириллические домены поддерживаются. Поддомены добавляются отдельно.</p>
+      </form>
+      <p id="status" class="status" role="status" aria-live="polite">Загрузка…</p>
+      <div class="table-wrap"><table><thead><tr><th scope="col">Домен</th><th scope="col" class="action-heading"><span class="sr-only">Действия</span></th></tr></thead><tbody id="domains"></tbody></table></div>
+      <p id="empty" class="empty" hidden>Пока нет доменов. Добавьте первый выше.</p>
+    </section>
+  </main>
+  <footer class="developer-footer"><a href="https://github.com/asemenov566" target="_blank" rel="noopener noreferrer">Develop: asemenov566</a></footer>
+  <script src="settings.js" type="module"></script>
+</body>
+</html>

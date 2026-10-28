@@ -1,0 +1,112 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    outputs:
+      version: ${{ steps.package.outputs.version }}
+      archive: ${{ steps.package.outputs.archive }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unit and packaging tests
+        run: npm test
+      - name: Install browser test dependencies
+        run: npm ci --ignore-scripts
+      - name: Install Chromium
+        run: npx playwright install chromium
+      - name: Browser tests
+        run: npm run test:browser
+      - name: Package extension
+        id: package
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = (Get-Content extension/manifest.json -Raw | ConvertFrom-Json).version
+          if ($version -notmatch '^\d+(\.\d+){0,3}$') { throw 'Invalid manifest version.' }
+          powershell -NoProfile -File scripts/package.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'Packaging failed.' }
+          $archive = "auto-confirm-chrome-app-v$version.zip"
+          $hash = (Get-FileHash -LiteralPath "dist/$archive" -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $archive" | Set-Content -LiteralPath dist/SHA256SUMS.txt -Encoding utf8NoBOM
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "archive=$archive" >> $env:GITHUB_OUTPUT
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ github.sha }}
+          path: |
+            dist/${{ steps.package.outputs.archive }}
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-${{ github.sha }}
+          path: dist
+      - name: Verify archive and publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_VERSION: ${{ needs.build.outputs.version }}
+          RELEASE_ARCHIVE: ${{ needs.build.outputs.archive }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = "v$env:RELEASE_VERSION"
+          $manifestVersion = (Get-Content extension/manifest.json -Raw | ConvertFrom-Json).version
+          if ($manifestVersion -ne $env:RELEASE_VERSION) { throw 'Manifest version mismatch.' }
+          $hash = (Get-FileHash -LiteralPath "dist/$env:RELEASE_ARCHIVE" -Algorithm SHA256).Hash.ToLowerInvariant()
+          $checksum = (Get-Content dist/SHA256SUMS.txt -Raw).Trim()
+          if ($checksum -cne "$hash  $env:RELEASE_ARCHIVE") { throw 'Archive checksum mismatch.' }
+          if ([string]::IsNullOrWhiteSpace((Get-Content docs/release-notes.md -Raw))) { throw 'Release notes are empty.' }
+
+          $headers = @{
+            Authorization = "Bearer $env:GH_TOKEN"
+            Accept = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+          }
+          foreach ($resource in @("git/ref/tags/$tag", "releases/tags/$tag")) {
+            $exists = $false
+            try {
+              $null = Invoke-WebRequest -Uri "https://api.github.com/repos/$env:GH_REPO/$resource" -Headers $headers
+              $exists = $true
+            } catch {
+              if ($null -eq $_.Exception.Response -or [int]$_.Exception.Response.StatusCode -ne 404) { throw }
+            }
+            if ($exists) { throw "$tag already exists ($resource). Existing tags and releases are never replaced." }
+          }
+
+          gh release create $tag "dist/$env:RELEASE_ARCHIVE" dist/SHA256SUMS.txt --repo $env:GH_REPO --target $env:RELEASE_SHA --title "Auto Confirm $env:RELEASE_VERSION" --notes-file docs/release-notes.md --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed; inspect the existing release before retrying.' }

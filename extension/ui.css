@@ -1,0 +1,53 @@
+:root { color-scheme: light; font: 13px/1.5 "Segoe UI", Arial, sans-serif; color: #321e2b; background: #fff8f5; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; }
+button, input { font: inherit; }
+button { cursor: pointer; border: 1px solid #eadbdc; border-radius: 9px; padding: 8px 12px; color: #422738; background: white; font-weight: 600; }
+button:hover:not(:disabled) { background: #fff0e8; }
+button:disabled, input:disabled { cursor: default; opacity: .5; }
+button:focus-visible, input:focus-visible { outline: 2px solid #ac2874; outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.popup-page, .popup { width: 140px; min-width: 140px; max-width: 140px; height: 46px; min-height: 46px; max-height: 46px; overflow: hidden; }
+.popup { background: radial-gradient(ellipse at 100% 0, #ffe4d2, transparent 70%), #fff8f5; }
+.popup-controls { display: flex; align-items: center; justify-content: space-between; height: 30px; padding: 3px 9px; }
+.switch { appearance: none; position: relative; flex: 0 0 36px; width: 36px; height: 21px; margin: 0; padding: 0; border: 0; border-radius: 12px; background: #dbcfd6; cursor: pointer; transition: background .15s; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 15px; height: 15px; border-radius: 50%; background: white; box-shadow: 0 1px 3px #4c183526; transition: transform .15s; }
+.switch:checked { background: linear-gradient(110deg, #ff973b, #f65378, #c84fd8); }
+.switch:checked::after { transform: translateX(15px); }
+.gear { display: grid; place-items: center; flex: 0 0 24px; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 7px; color: #805168; background: transparent; }
+.has-error .gear { color: #ad2648; }
+.settings-page { min-width: 320px; background: radial-gradient(ellipse at 100% 0, #ffe4d2, transparent 60%), #fff8f5; min-height: 100vh; padding: 25px 25px 43px; }
+main { max-width: 720px; margin: 0 auto; }
+.brand-logo { float: right; margin: 0 0 8px 14px; }
+.eyebrow { font-size: 10px; font-weight: 650; letter-spacing: 1.4px; color: #79616e; }
+h1 { margin: 4px 0 5px; font-size: 25px; line-height: 1.3; letter-spacing: -.6px; }
+header p { margin: 0 0 21px; color: #755e6b; }
+.card { padding: 20px; border: 1px solid #eddcde; border-radius: 13px; background: white; box-shadow: 0 4px 20px #681f3d08; }
+label { display: block; margin-bottom: 7px; font-weight: 600; }
+.add-row { display: flex; align-items: stretch; gap: 9px; }
+.add-row input { flex: 1; min-width: 0; width: 100%; padding: 9px 11px; border: 1px solid #dfcbd3; border-radius: 9px; background: #fffbf9; color: #422738; }
+.add-row input[aria-invalid="true"] { border-color: #bc365b; background: #fff9fa; }
+.primary { border: 0; color: #28101f; background: linear-gradient(110deg, #ff973b, #f65378 60%, #c84fd8); }
+.primary:hover:not(:disabled) { background: linear-gradient(110deg, #ffa553, #f96b8b 60%, #d368df); }
+.hint { margin: 8px 0 0; color: #79616e; font-size: 11px; }
+.status { min-height: 18px; margin: 15px 0 10px; font-size: 12px; color: #79616e; overflow-wrap: anywhere; }
+.status.error { color: #ad2648; }
+.table-wrap { width: 100%; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th { padding: 9px 11px; background: #fff3ed; color: #79616e; font-size: 11px; font-weight: 600; }
+th:first-child { border-radius: 8px 0 0 8px; }
+th:last-child { border-radius: 0 8px 8px 0; }
+td { padding: 10px 11px; border-bottom: 1px solid #f2e4e6; overflow-wrap: anywhere; }
+tbody tr:last-child td { border-bottom: 0; }
+.row-action { text-align: right; width: 90px; white-space: nowrap; }
+.remove { padding: 5px 9px; font-size: 11px; color: #a03359; border-color: #ebd4dc; }
+.remove:hover:not(:disabled) { background: #fff2f5; }
+.empty { margin: 20px 0 5px; color: #79616e; text-align: center; }
+.developer-footer { position: fixed; bottom: 0; left: 0; width: 100%; height: 18px; padding: 2px 18px; margin: 0; z-index: 4; background: transparent; color: #5f6368; font: 10px/14px Arial, "Segoe UI", sans-serif; text-align: right; white-space: nowrap; }
+.popup .developer-footer { height: 16px; padding: 1px 9px; text-align: center; }
+.developer-footer a { color: inherit; font: inherit; text-decoration: none; }
+.developer-footer a:hover { text-decoration: underline; }
+.developer-footer a:focus-visible { outline: 2px solid #ac2874; outline-offset: 0; }
+@media (max-width: 420px) { .settings-page { padding: 15px 15px 33px; } .card { padding: 14px; } }
+@media (prefers-reduced-motion: reduce) { *, *::after { transition: none !important; } }

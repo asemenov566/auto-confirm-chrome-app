@@ -1,0 +1,10 @@
+{
+  "domains": [
+    "blocked.example",
+    "production.example"
+  ],
+  "presets": [
+    "development.example",
+    "testing.example"
+  ]
+}
