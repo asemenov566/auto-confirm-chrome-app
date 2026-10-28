@@ -1,0 +1,6 @@
+tests/profile/
+tests/*.png
+tests/config-fixture-*/
+/extension/exceptions.json
+node_modules/
+dist/
